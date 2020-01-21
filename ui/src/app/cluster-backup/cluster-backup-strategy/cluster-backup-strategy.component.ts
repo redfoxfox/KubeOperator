@@ -10,7 +10,6 @@ import {AlertLevels} from '../../base/header/components/common-alert/alert';
 import {ConfirmAlertComponent} from '../../shared/common-component/confirm-alert/confirm-alert.component';
 import {OperaterService} from '../../deploy/component/operater/operater.service';
 import {ClusterHealthService} from '../../cluster-health/cluster-health.service';
-import {ClusterHealth} from '../../cluster-health/cluster-health';
 
 
 @Component({
@@ -34,8 +33,7 @@ export class ClusterBackupStrategyComponent implements OnInit {
   projectId = '';
   event: string = null;
   @ViewChild(ConfirmAlertComponent, {static: true}) confirmAlert: ConfirmAlertComponent;
-  clusterHealth: ClusterHealth = new ClusterHealth();
-  etcdHealth = false;
+  etcdHealth = true;
 
 
   ngOnInit() {
@@ -118,11 +116,11 @@ export class ClusterBackupStrategyComponent implements OnInit {
     if (this.currentCluster.status === 'READY') {
       return;
     }
-    this.clusterHealthService.listClusterHealth(this.currentCluster.name).subscribe(res => {
-      this.clusterHealth = res;
-      for (const ch of this.clusterHealth.data) {
-        if (ch.job === 'etcd') {
-          this.etcdHealth = (ch.rate === 100);
+    this.clusterHealthService.listComponent(this.currentCluster.name).subscribe(res => {
+      for (const ch of res) {
+        if (ch.name.indexOf('etcd') !== -1 && ch.status !== 'RUNNING') {
+          this.etcdHealth = false;
+          break;
         }
       }
     });
@@ -158,7 +156,7 @@ export class ClusterBackupStrategyComponent implements OnInit {
 
   redirect(url: string) {
     if (url) {
-      const linkUrl = ['kubeOperator', 'cluster', this.currentCluster.name, url];
+      const linkUrl = ['cluster', this.currentCluster.name, url];
       this.router.navigate(linkUrl);
     }
   }

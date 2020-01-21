@@ -6,9 +6,9 @@ import {ScaleComponent} from '../scale/scale.component';
 import {Router} from '@angular/router';
 import {OperaterService} from '../../deploy/component/operater/operater.service';
 import {ClusterHealthService} from '../../cluster-health/cluster-health.service';
-import {ClusterHealth} from '../../cluster-health/cluster-health';
 import {AddWorkerComponent} from '../add-worker/add-worker.component';
 import {RemoveWorkerComponent} from '../remove-worker/remove-worker.component';
+import {ClusterService} from '../../cluster/cluster.service';
 
 
 @Component({
@@ -28,7 +28,7 @@ export class ClusterStatusComponent implements OnInit {
 
 
   constructor(private nodeService: NodeService, private clusterHealthService: ClusterHealthService,
-              private router: Router, private operaterService: OperaterService) {
+              private router: Router, private operaterService: OperaterService, private clusterService: ClusterService) {
   }
 
   ngOnInit() {
@@ -46,6 +46,12 @@ export class ClusterStatusComponent implements OnInit {
       this.redirect('deploy');
     }, error => {
       this.scale.opened = false;
+    });
+  }
+
+  refresh() {
+    this.clusterService.getCluster(this.currentCluster.name).subscribe(data => {
+      this.currentCluster = data;
     });
   }
 
@@ -69,7 +75,7 @@ export class ClusterStatusComponent implements OnInit {
 
   redirect(url: string) {
     if (url) {
-      const linkUrl = ['kubeOperator', 'cluster', this.currentCluster.name, url];
+      const linkUrl = ['cluster', this.currentCluster.name, url];
       this.router.navigate(linkUrl);
     }
   }
@@ -95,11 +101,13 @@ export class ClusterStatusComponent implements OnInit {
 
   getClusterStatus() {
     this.loading = true;
-    this.clusterHealthService.listClusterHealth(this.currentCluster.name).subscribe(res => {
-      this.componentData = res.component;
+    this.clusterHealthService.listComponent(this.currentCluster.name).subscribe(res => {
+      this.componentData = res;
       this.loading = false;
     }, error1 => {
       this.loading = false;
     });
   }
+
+
 }

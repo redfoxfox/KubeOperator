@@ -16,6 +16,14 @@ export class Host {
   zone: string;
   status: string;
   volumes: Volume[];
+  has_gpu: boolean;
+  gpus: GPU[] = [];
+  conditions: Condition[] = [];
+}
+
+export class GPU {
+  id: string;
+  name: string;
 }
 
 export class Volume {
@@ -23,4 +31,11 @@ export class Volume {
   name: string;
   size: string;
   blank: boolean;
+}
+
+export class Condition {
+  status: boolean;
+  message: string;
+  reason: string;
+  last_time: string;
 }

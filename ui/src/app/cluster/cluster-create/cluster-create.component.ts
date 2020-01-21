@@ -22,6 +22,8 @@ import {AlertLevels} from '../../base/header/components/common-alert/alert';
 import {Storage} from '../cluster';
 import {Storage as StorageItem} from '../cluster';
 import {StorageService} from '../storage.service';
+import * as globals from '../../globals';
+import {CephService} from '../../ceph/ceph.service';
 
 export const CHECK_STATE_PENDING = 'pending';
 export const CHECK_STATE_SUCCESS = 'success';
@@ -77,13 +79,16 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   Manual = 'MANUAL';
   Automatic = 'AUTOMATIC';
   clusterNameChecker: Subject<string> = new Subject<string>();
+  name_pattern = globals.cluster_name_pattern;
+  name_pattern_tip = globals.cluster_name_pattern_tip;
 
   @Output() create = new EventEmitter<boolean>();
 
   constructor(private alertService: CommonAlertService, private nodeService: NodeService, private clusterService: ClusterService
     , private packageService: PackageService, private relationService: RelationService,
               private hostService: HostService, private deviceCheckService: DeviceCheckService,
-              private settingService: SettingService, private planService: PlanService, private storageService: StorageService) {
+              private settingService: SettingService, private planService: PlanService, private storageService: StorageService,
+              private cephService: CephService) {
   }
 
   ngOnInit() {
@@ -162,6 +167,12 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
         this.storageList = data;
       });
     }
+    if (this.cluster.persistent_storage === 'external-ceph') {
+      this.storageService.list('ceph').subscribe(data => {
+        this.storageList = data;
+      });
+    }
+
     this.storages.forEach(storage => {
       if (this.cluster.persistent_storage === storage.name) {
         this.storage = storage;
@@ -212,6 +223,7 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
   listPackages() {
     this.packageService.listPackage().subscribe(data => {
       this.packages = data;
+      console.log(data);
     }, error => {
       this.alertService.showAlert('加载离线包错误!: \n' + error, AlertLevels.ERROR);
     });
@@ -282,6 +294,16 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
         });
       }
     });
+  }
+
+  getPackageVars() {
+    let vars = null;
+    this.packages.forEach(p => {
+      if (p.name === this.cluster.package) {
+        vars = p.meta.vars;
+      }
+    });
+    return vars;
   }
 
   onHostChange(node: Node) {
@@ -475,12 +497,4 @@ export class ClusterCreateComponent implements OnInit, OnDestroy {
     this.reset();
     this.createClusterOpened = false;
   }
-
-  test(value) {
-    console.log(value);
-    console.log(this.cluster.configs);
-    console.log(this.cluster.worker_size);
-  }
-
-
 }

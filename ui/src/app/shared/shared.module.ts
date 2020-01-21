@@ -7,12 +7,15 @@ import {NullFilterPipe} from './pipe/null-filter.pipe';
 import {DeleteAlertComponent} from './common-component/delete-alert/delete-alert.component';
 import {ConfirmAlertComponent} from './common-component/confirm-alert/confirm-alert.component';
 import {StatusPipe} from './pipe/status.pipe';
-import { StatusColorPipe } from './pipe/status-color.pipe';
+import {StatusColorPipe} from './pipe/status-color.pipe';
 import {ModalAlertComponent} from './common-component/modal-alert/modal-alert.component';
+import {KeysPipe} from './pipe/keys.pipe';
+import { ProgressColorPipe } from './pipe/progress-color.pipe';
+import { BadgeClassPipe } from './pipe/badge-class.pipe';
 
 @NgModule({
-  declarations: [NotFoundComponent, NullFilterPipe, DeleteAlertComponent, ConfirmAlertComponent, StatusPipe,
-    StatusColorPipe, ModalAlertComponent],
+  declarations: [NotFoundComponent, KeysPipe, NullFilterPipe, DeleteAlertComponent, ConfirmAlertComponent, StatusPipe,
+    StatusColorPipe, ModalAlertComponent, ProgressColorPipe, BadgeClassPipe],
   imports: [
     CommonModule,
     CoreModule
@@ -23,7 +26,10 @@ import {ModalAlertComponent} from './common-component/modal-alert/modal-alert.co
     DeleteAlertComponent,
     ConfirmAlertComponent,
     ModalAlertComponent,
-    StatusColorPipe
+    StatusColorPipe,
+    KeysPipe,
+    ProgressColorPipe,
+    BadgeClassPipe
   ], providers: [
     AuthUserActiveService,
   ]
